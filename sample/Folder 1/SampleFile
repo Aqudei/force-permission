@@ -1,0 +1,15 @@
+[[source]]
+verify_ssl = true
+url = "https://pypi.org/simple"
+name = "pypi"
+
+[packages]
+pyyaml = "*"
+pylint = "*"
+rope = "*"
+"autopep8" = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.5"

@@ -1,0 +1,12 @@
+ if FILE_PERMISSION_NAME in files:
+            latest_filepermission = os.path.join(root, FILE_PERMISSION_NAME)
+            with open(latest_filepermission, 'rt') as fp:
+
+                settings = yaml.load(fp)
+
+                latest_user_value = settings['user']
+                latest_group_value = settings['group']
+
+                #print('Using the following filePermission values:')
+                #print('\tUser:' + latest_user_value)
+                #print('\tGroup:' + latest_group_value)
