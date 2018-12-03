@@ -53,7 +53,11 @@ def read_and_cache_permission_file(permission_file):
 
 def get_file_info(filename):
     stats = os.stat(filename)
-    return (stats.st_mode & 0o777, pwd.getpwuid(stats.st_uid).pw_name, grp.getgrgid(stats.st_gid).gr_name)
+    return (
+        stats.st_mode & 0o777,
+        pwd.getpwuid(stats.st_uid).pw_name,
+        grp.getgrgid(stats.st_gid).gr_name
+    )
 
 
 if __name__ == "__main__":
@@ -82,10 +86,10 @@ if __name__ == "__main__":
 
         using_chmod = filepermission_info.get('chmod')
 
-        print('Processing files inside folder : \'{}\''.format(root))
+        print('\nProcessing files inside folder : \'{}\''.format(root))
 
-        for f in files:
-            filename = os.path.join(root, f)
+        for file in files:
+            filename = os.path.join(root, file)
 
             mod, uname, gname = get_file_info(filename)
 
@@ -96,7 +100,7 @@ if __name__ == "__main__":
 
                 if uname == using_user and gname == using_group:
                     print(colored(
-                        "file {} was skipped in chown because file already has correct user/group".format(filename),'yellow'))
+                        "file {} was skipped in chown because file already has correct user/group".format(filename), 'yellow'))
                 else:
                     try:
                         print("Using chown on {} with user: {} and group: {}".format(
@@ -111,6 +115,39 @@ if __name__ == "__main__":
             if using_chmod:
                 if not mod == using_chmod:
                     os.chmod(filename, using_chmod)
+
+        print('\nProcessing directories inside folder : \'{}\''.format(root))
+
+        for folder in dirs:
+            if folder in ['.', '..']:
+                continue
+
+            folder_name = os.path.join(root, folder)
+
+            mod, uname, gname = get_file_info(folder_name)
+
+            if not using_group and not using_user:
+                print(colored(
+                    "file {} was skipped in chown because the yaml contains invalid or missing user/group".format(folder_name), 'yellow'))
+            else:
+
+                if uname == using_user and gname == using_group:
+                    print(colored(
+                        "file {} was skipped in chown because file already has correct user/group".format(folder_name), 'yellow'))
+                else:
+                    try:
+                        print("Using chown on {} with user: {} and group: {}".format(
+                            folder_name, using_user, using_group))
+                        shutil.chown(folder_name, user=using_user,
+                                     group=using_group)
+                        print(colored(
+                            'Success: Chown was executed on file: {}'.format(folder_name), 'green'))
+                    except Exception as e:
+                        print(colored(str(e), 'red'))
+
+            if using_chmod:
+                if not mod == using_chmod:
+                    os.chmod(folder_name, using_chmod)
 
     for d in dirs:
         directory = os.path.join(root, d)
