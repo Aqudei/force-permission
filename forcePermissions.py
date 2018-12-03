@@ -3,6 +3,7 @@ import yaml
 import pwd
 import grp
 import shutil
+from termcolor import colored
 
 START_DIR = './sample'
 
@@ -36,11 +37,13 @@ def read_and_cache_permission_file(permission_file):
         if 'user' in filepermission_info:
             cached_permission_file[permission_file]['user'] = filepermission_info['user']
         else:
+            print(colored('No user found in {}'.format(permission_file), 'yellow'))
             cached_permission_file[permission_file]['user'] = None
 
         if 'group' in filepermission_info:
             cached_permission_file[permission_file]['group'] = filepermission_info['group']
         else:
+            print(colored('No group found in {}'.format(permission_file), 'yellow'))
             cached_permission_file[permission_file]['group'] = None
 
         if 'chmod' in filepermission_info:
@@ -66,7 +69,9 @@ if __name__ == "__main__":
         # See comments for search_for_filepermission()
         permission_file = search_for_filepermission(root)
         if permission_file in cached_permission_file:
-            print('Using cached version of {}'.format(permission_file))
+
+            print('Using cached version of {}'.format(
+                permission_file))
         else:
             read_and_cache_permission_file(permission_file)
 
@@ -85,23 +90,23 @@ if __name__ == "__main__":
             mod, uname, gname = get_file_info(filename)
 
             if not using_group and not using_user:
-                print(
-                    "file {} was skipped in chown because the yaml contains invalid user/group".format(filename))
+                print(colored(
+                    "file {} was skipped in chown because the yaml contains invalid user/group".format(filename), 'yellow'))
             else:
 
                 if uname == using_user and gname == using_group:
-                    print(
-                        "file {} was skipped in chown because file already has correct user/group".format(filename))
+                    print(colored(
+                        "file {} was skipped in chown because file already has correct user/group".format(filename),'yellow'))
                 else:
                     try:
                         print("Using chown on {} with user: {} and group: {}".format(
                             filename, using_user, using_group))
                         shutil.chown(filename, user=using_user,
                                      group=using_group)
-                        print(
-                            'Success: Chown was executed on file: {}'.format(filename))
+                        print(colored(
+                            'Success: Chown was executed on file: {}'.format(filename), 'green'))
                     except Exception as e:
-                        print(e)
+                        print(colored(str(e), 'red'))
 
             if using_chmod:
                 if not mod == using_chmod:
