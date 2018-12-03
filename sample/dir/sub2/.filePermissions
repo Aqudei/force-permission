@@ -1,2 +1,3 @@
 user: messagebus
 group: rdma
+chmod: 777

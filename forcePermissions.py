@@ -47,8 +47,8 @@ def read_and_cache_permission_file(permission_file):
             cached_permission_file[permission_file]['group'] = None
 
         if 'chmod' in filepermission_info:
-            cached_permission_file[permission_file]['chmod'] = int(
-                filepermission_info['chmod'], 8)
+            cached_permission_file[permission_file]['chmod'] = int(str(
+                filepermission_info['chmod']), 8)
 
 
 def get_file_info(filename):
@@ -114,6 +114,8 @@ if __name__ == "__main__":
 
             if using_chmod:
                 if not mod == using_chmod:
+                    print('Appyling chmod: {} to file: {}'.format(
+                        oct(using_chmod), filename))
                     os.chmod(filename, using_chmod)
 
         print('\nProcessing directories inside folder : \'{}\''.format(root))
@@ -147,7 +149,6 @@ if __name__ == "__main__":
 
             if using_chmod:
                 if not mod == using_chmod:
+                    print('Appyling chmod: {} to file: {}'.format(
+                        oct(using_chmod), folder_name))
                     os.chmod(folder_name, using_chmod)
-
-    for d in dirs:
-        directory = os.path.join(root, d)
