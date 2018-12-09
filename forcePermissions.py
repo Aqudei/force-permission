@@ -9,6 +9,8 @@ START_DIR = './sample'
 
 PERMISSION_FILENAME = '.filePermissions'
 
+DEBUG = True
+
 cached_permission_file = dict()
 
 # searching for permission file is done by traversing directory upward
@@ -27,7 +29,7 @@ def search_for_filepermission(folder):
 
 
 def read_and_cache_permission_file(permission_file):
-    print('Caching permission file: {}'.format(permission_file))
+    DEBUG and print('Caching permission file: {}'.format(permission_file))
     with open(permission_file, 'rt') as fp:
 
         filepermission_info = yaml.load(fp)
@@ -61,6 +63,7 @@ def get_file_info(filename):
 
 
 if __name__ == "__main__":
+    print ("Starting" + START_DIR);
 
     # Root directory MUST have .forcePermission file
     if not PERMISSION_FILENAME in os.listdir(START_DIR):
@@ -69,12 +72,11 @@ if __name__ == "__main__":
 
     # Loop through all files in the directory starting at the deepest level (BOTTOM UP)
     for root, dirs, files in os.walk(START_DIR, topdown=False):
-
         # See comments for search_for_filepermission()
         permission_file = search_for_filepermission(root)
         if permission_file in cached_permission_file:
 
-            print('Using cached version of {}'.format(
+            DEBUG and print('Using cached version of {}'.format(
                 permission_file))
         else:
             read_and_cache_permission_file(permission_file)
@@ -86,7 +88,7 @@ if __name__ == "__main__":
 
         using_chmod = filepermission_info.get('chmod')
 
-        print('\nProcessing files inside folder : \'{}\''.format(root))
+        DEBUG and print('\nProcessing files inside folder : \'{}\''.format(root))
 
         for file in files:
             filename = os.path.join(root, file)
@@ -99,7 +101,7 @@ if __name__ == "__main__":
             else:
 
                 if uname == using_user and gname == using_group:
-                    print(colored(
+                    DEBUG and print(colored(
                         "file {} was skipped in chown because file already has correct user/group".format(filename), 'yellow'))
                 else:
                     try:
@@ -117,8 +119,10 @@ if __name__ == "__main__":
                     print('Appyling chmod: {} to file: {}'.format(
                         oct(using_chmod), filename))
                     os.chmod(filename, using_chmod)
+                    print(colored(
+                        'Success: Chmod was executed on file: {}'.format(filename), 'green'))
 
-        print('\nProcessing directories inside folder : \'{}\''.format(root))
+        DEBUG and print('\nProcessing directories inside folder : \'{}\''.format(root))
 
         for folder in dirs:
             if folder in ['.', '..']:
@@ -134,7 +138,7 @@ if __name__ == "__main__":
             else:
 
                 if uname == using_user and gname == using_group:
-                    print(colored(
+                    DEBUG and print(colored(
                         "file {} was skipped in chown because file already has correct user/group".format(folder_name), 'yellow'))
                 else:
                     try:
@@ -152,3 +156,5 @@ if __name__ == "__main__":
                     print('Appyling chmod: {} to file: {}'.format(
                         oct(using_chmod), folder_name))
                     os.chmod(folder_name, using_chmod)
+                    print(colored(
+                        'Success: Chmod was executed on file: {}'.format(folder_name), 'green'))
